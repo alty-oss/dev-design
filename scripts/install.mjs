@@ -110,12 +110,13 @@ export function runInstallerCli({
   args = process.argv.slice(2),
   sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)),'..'),
   targetRoot = join(homedir(),'.cursor/plugins/local/design'),
+  commandName = 'dev-design',
   stdout = message => console.log(message),
   stderr = message => console.error(message)
 } = {}) {
   try {
     if(args.length>1 || (args.length&&!['--help','--check','--dry-run','--replace'].includes(args[0])))throw new Error('Use one of --help, --check, --dry-run, --replace, or no flags');
-    if(args[0]==='--help')stdout('Usage: design [--help | --check | --dry-run | --replace]\nInstalls local files; Cursor loading must be confirmed separately.');
+    if(args[0]==='--help')stdout(`Usage: ${commandName} [--help | --check | --dry-run | --replace]\nInstalls local files; Cursor loading must be confirmed separately.`);
     else {
       const options={sourceRoot,targetRoot,replace:args[0]==='--replace'};
       if(['--check','--dry-run'].includes(args[0])) {
@@ -126,5 +127,5 @@ export function runInstallerCli({
   } catch(error) {stderr(error.message);process.exitCode=1;return 1;}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
-  runInstallerCli();
+  runInstallerCli({ commandName: 'node scripts/install.mjs' });
 }

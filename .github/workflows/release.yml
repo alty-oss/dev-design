@@ -28,10 +28,28 @@ jobs:
           PACKAGE_VERSION: ${{ github.ref_name }}
         run: |
           version="${PACKAGE_VERSION#v}"
-          if npm view "dev-design@$version" version >/dev/null 2>&1; then
-            echo "dev-design@$version is already published; retaining its immutable registry bytes."
+          npm_dir="$RUNNER_TEMP/design-npm"
+          mkdir -p "$npm_dir"
+          npm pack --pack-destination "$npm_dir" --json > "$RUNNER_TEMP/design-npm-pack.json"
+          archive="$npm_dir/$(node -e 'const fs=require("node:fs"); console.log(JSON.parse(fs.readFileSync(process.argv[1], "utf8"))[0].filename)' "$RUNNER_TEMP/design-npm-pack.json")"
+          local_integrity="$(node -e 'const fs=require("node:fs"); const crypto=require("node:crypto"); console.log("sha512-"+crypto.createHash("sha512").update(fs.readFileSync(process.argv[1])).digest("base64"))' "$archive")"
+          view_error="$RUNNER_TEMP/npm-view-error.txt"
+          if published_integrity="$(npm view "dev-design@$version" dist.integrity 2>"$view_error")"; then
+            [ "$published_integrity" = "$local_integrity" ] || {
+              echo "Refusing npm version collision: dev-design@$version has different immutable bytes." >&2
+              exit 1
+            }
+            echo "dev-design@$version already has the verified packed bytes."
+          elif rg -q 'E404' "$view_error"; then
+            npm publish "$archive" --access public
+            published_integrity="$(npm view "dev-design@$version" dist.integrity)"
+            [ "$published_integrity" = "$local_integrity" ] || {
+              echo "Published npm integrity did not match the reviewed tarball." >&2
+              exit 1
+            }
           else
-            npm publish --access public
+            cat "$view_error" >&2
+            exit 1
           fi
       - name: Publish release and checksum
         env:

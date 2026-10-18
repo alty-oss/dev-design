@@ -59,6 +59,14 @@ test("public metadata points to the intended repository", () => fixture(root => 
   editJson(root, "package.json", data => data.repository = "https://example.org/other");
   assert.throws(() => verify(root), /repository|metadata/i);
 }));
+test("release workflow rejects an npm version whose immutable bytes differ", () => {
+  const workflow = readFileSync(join(source, ".github/workflows/release.yml"), "utf8");
+  assert.match(workflow, /npm pack --pack-destination/);
+  assert.match(workflow, /local_integrity=/);
+  assert.match(workflow, /published_integrity=/);
+  assert.match(workflow, /\[ "\$published_integrity" = "\$local_integrity" \]/);
+  assert.match(workflow, /npm publish "\$archive" --access public/);
+});
 test("every maintained document has a Portuguese companion", () => fixture(root => {
   rmSync(join(root, "README.pt-BR.md"));
   assert.throws(() => verify(root), /Portuguese companion/i);

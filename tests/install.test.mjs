@@ -61,11 +61,18 @@ test('package binary delegates installer modes from an isolated home',()=>fixtur
  const home=join(temp,'binary-home'); fs.mkdirSync(home);
  const cli=(...args)=>spawnSync(process.execPath,['bin/dev-design.mjs',...args],{cwd:root,env:{...process.env,HOME:home,USERPROFILE:home},encoding:'utf8'});
  for(const flag of ['--check','--dry-run','--help']) assert.equal(cli(flag).status,0,cli(flag).stderr);
+ assert.match(cli('--help').stdout,/Usage: dev-design /);
  assert.equal(JSON.parse(cli('--check').stdout).status,'missing');
  assert.deepEqual(fs.readdirSync(home),[]);
  assert.equal(cli().status,0,cli().stderr);
  assert.ok(fs.existsSync(join(home,'.cursor/plugins/local/design/.cursor-plugin/plugin.json')));
  assert.equal(JSON.parse(cli('--check').stdout).status,'matching');
+}));
+test('source installer identifies its direct invocation in help output',()=>fixture(({root,temp})=>{
+ const home=join(temp,'source-help-home'); fs.mkdirSync(home);
+ const result=spawnSync(process.execPath,['scripts/install.mjs','--help'],{cwd:root,env:{...process.env,HOME:home,USERPROFILE:home},encoding:'utf8'});
+ assert.equal(result.status,0,result.stderr);
+ assert.match(result.stdout,/Usage: node scripts\/install\.mjs /);
 }));
 
 test('explicit flat target keeps staging and backups beside target',()=>fixture(({root,temp})=>{
