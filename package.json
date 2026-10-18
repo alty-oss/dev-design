@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "Dev Design: a UI and UX workflow for Cursor",
   "author": "AngeloResplandes",
-  "repository": "https://github.com/alty-oss/dev-design",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alty-oss/dev-design.git"
+  },
   "homepage": "https://github.com/alty-oss/dev-design",
   "license": "Apache-2.0",
   "private": false,
@@ -12,7 +15,7 @@
     "node": ">=22.14.0"
   },
   "bin": {
-    "dev-design": "./bin/dev-design.mjs"
+    "dev-design": "bin/dev-design.mjs"
   },
   "files": [
     ".cursor-plugin/plugin.json",

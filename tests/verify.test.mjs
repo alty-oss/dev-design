@@ -49,14 +49,16 @@ test("unsupported manifest fields are rejected", () => fixture(root => {
 }));
 test("canonical repository metadata is accepted while plugin identity stays design", () => fixture(root => {
   const repository = "https://github.com/alty-oss/dev-design";
-  for (const file of ["package.json", ".cursor-plugin/plugin.json"]) {
-    editJson(root, file, data => { data.repository = repository; data.homepage = repository; });
-  }
+  editJson(root, "package.json", data => {
+    data.repository = { type: "git", url: "git+" + repository + ".git" };
+    data.homepage = repository;
+  });
+  editJson(root, ".cursor-plugin/plugin.json", data => { data.repository = repository; data.homepage = repository; });
   assert.doesNotThrow(() => verify(root));
   assert.equal(JSON.parse(readFileSync(join(root, ".cursor-plugin/plugin.json"), "utf8")).name, "design");
 }));
 test("public metadata points to the intended repository", () => fixture(root => {
-  editJson(root, "package.json", data => data.repository = "https://example.org/other");
+  editJson(root, "package.json", data => data.repository = { type: "git", url: "git+https://example.org/other.git" });
   assert.throws(() => verify(root), /repository|metadata/i);
 }));
 test("release workflow rejects an npm version whose immutable bytes differ", () => {

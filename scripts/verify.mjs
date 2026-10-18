@@ -121,14 +121,14 @@ export function verify(root) {
   if (packageJson.version !== manifest.version) throw new Error("version mismatch");
   if (typeof manifest.version !== "string" || !semver.test(manifest.version)) throw new Error("invalid SemVer version");
   if (packageJson.private !== false || packageJson.engines?.node !== ">=22.14.0" ||
-      packageJson.bin?.["dev-design"] !== "./bin/dev-design.mjs" ||
+      packageJson.bin?.["dev-design"] !== "bin/dev-design.mjs" ||
       packageJson.publishConfig?.access !== "public") throw new Error("npm package contract mismatch");
   if (manifest.skills !== "./skills/" || manifest.rules !== "./rules/") throw new Error("Cursor manifest contract mismatch");
   for (const field of Object.keys(manifest)) {
     if (!manifestFields.has(field)) throw new Error("unsupported manifest field: " + field);
   }
   const repository = "https://github.com/alty-oss/dev-design";
-  if (packageJson.repository !== repository || manifest.repository !== repository ||
+  if (packageJson.repository?.type !== "git" || packageJson.repository?.url !== "git+" + repository + ".git" || manifest.repository !== repository ||
       packageJson.homepage !== repository || manifest.homepage !== repository ||
       packageJson.author !== "AngeloResplandes" || manifest.author?.name !== "AngeloResplandes" ||
       packageJson.license !== "Apache-2.0" || manifest.license !== "Apache-2.0") {
