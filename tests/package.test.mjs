@@ -10,6 +10,7 @@ import { createHash } from 'node:crypto';
 const source = dirname(dirname(fileURLToPath(import.meta.url)));
 const version = JSON.parse(readFileSync(join(source, "package.json"), "utf8")).version;
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmOptions = options => process.platform === 'win32' ? { ...options, shell: true } : options;
 function fixture(run) {
   const temp = realpathSync(mkdtempSync(join(tmpdir(), 'design-release-test-')));
   const root = join(temp, 'repo');
@@ -60,7 +61,7 @@ test('release ZIP contains exactly the public runtime list and verifies after ex
 }));
 
 test('npm tarball contains only the verified runtime and package binary', () => fixture(({ root }) => {
-  const packed = JSON.parse(execFileSync(npmCommand, ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8' }));
+  const packed = JSON.parse(execFileSync(npmCommand, ['pack', '--dry-run', '--json'], npmOptions({ cwd: root, encoding: 'utf8' })));
   const actual = packed[0].files.map(file => file.path).sort();
   const releaseFiles = JSON.parse(readFileSync(join(root, 'scripts/release-files.json'), 'utf8'));
   const expected = [...new Set([...releaseFiles, 'bin/dev-design.mjs', 'package.json'])].sort();
@@ -69,22 +70,22 @@ test('npm tarball contains only the verified runtime and package binary', () => 
 }));
 
 test('packed npm binary installs from an isolated home', () => fixture(({ root, output }) => {
-  const packed = JSON.parse(execFileSync(npmCommand, ['pack', '--json'], { cwd: root, encoding: 'utf8' }));
+  const packed = JSON.parse(execFileSync(npmCommand, ['pack', '--json'], npmOptions({ cwd: root, encoding: 'utf8' })));
   const archive = join(root, packed[0].filename);
   const home = join(output, 'npx-home');
   mkdirSync(home, { recursive: true });
-  const run = spawnSync(npmCommand, ['exec', '--yes', `--package=${archive}`, '--', 'dev-design', '--check'], {
+  const run = spawnSync(npmCommand, ['exec', '--yes', `--package=${archive}`, '--', 'dev-design', '--check'], npmOptions({
     cwd: root,
     env: { ...process.env, HOME: home, USERPROFILE: home },
     encoding: 'utf8'
-  });
+  }));
   assert.equal(run.status, 0, run.stderr);
   assert.equal(JSON.parse(run.stdout).status, 'missing');
-  assert.equal(spawnSync(npmCommand, ['exec', '--yes', `--package=${archive}`, '--', 'dev-design'], {
+  assert.equal(spawnSync(npmCommand, ['exec', '--yes', `--package=${archive}`, '--', 'dev-design'], npmOptions({
     cwd: root,
     env: { ...process.env, HOME: home, USERPROFILE: home },
     encoding: 'utf8'
-  }).status, 0);
+  })).status, 0);
   assert.ok(existsSync(join(home, '.cursor/plugins/local/design/.cursor-plugin/plugin.json')));
 }));
 
