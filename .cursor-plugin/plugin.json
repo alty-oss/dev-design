@@ -1,0 +1,19 @@
+{
+  "name": "design",
+  "version": "0.1.0",
+  "description": "Dev Design: a UI and UX workflow for Cursor",
+  "author": {
+    "name": "AngeloResplandes"
+  },
+  "homepage": "https://github.com/alty-oss/dev-design",
+  "repository": "https://github.com/alty-oss/dev-design",
+  "license": "Apache-2.0",
+  "keywords": [
+    "design",
+    "ui",
+    "ux",
+    "accessibility"
+  ],
+  "skills": "./skills/",
+  "rules": "./rules/"
+}

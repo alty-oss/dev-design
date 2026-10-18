@@ -1,0 +1,61 @@
+name: Checks
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22.14.0', '24']
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Check required tools
+        run: |
+          node --version
+          git --version
+          unzip -v
+      - run: npm test
+      - run: npm run verify
+      - run: node scripts/package.mjs --output "$RUNNER_TEMP/design-release"
+      - name: Install, update and restore ZIP in PowerShell
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $zipPath = Join-Path $env:RUNNER_TEMP "design-release/design-$version.zip"
+          $expected = ((Get-Content "$zipPath.sha256").Trim() -split '\s+')[0]
+          if ((Get-FileHash $zipPath -Algorithm SHA256).Hash -ine $expected) { throw 'Checksum mismatch' }
+          $extractRoot = Join-Path $env:RUNNER_TEMP 'design-powershell'
+          Expand-Archive $zipPath -DestinationPath $extractRoot
+          Set-Location (Join-Path $extractRoot 'design')
+          node scripts/verify.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Extracted package failed verification' }
+          $installed = node scripts/install.mjs | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $installed.status -ne 'installed') { throw 'First installation failed' }
+          $checked = node scripts/install.mjs --check | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $checked.status -ne 'matching') { throw 'Installed bytes differ' }
+          $targetRoot = Join-Path $env:USERPROFILE '.cursor/plugins/local/design'
+          Set-Content (Join-Path $targetRoot 'rollback-probe.txt') 'preserve previous installation'
+          $updated = node scripts/install.mjs --replace | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $updated.status -ne 'updated') { throw 'Update failed' }
+          $checked = node scripts/install.mjs --check | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $checked.status -ne 'matching') { throw 'Updated bytes differ' }
+          if (!(Test-Path (Join-Path $updated.backupPath 'rollback-probe.txt'))) { throw 'Backup lost previous files' }
+          Move-Item $targetRoot (Join-Path $env:RUNNER_TEMP 'design-before-restore')
+          Copy-Item $updated.backupPath $targetRoot -Recurse
+          if ((Get-Content (Join-Path $targetRoot 'rollback-probe.txt')) -ne 'preserve previous installation') { throw 'Restore lost previous files' }
+          node (Join-Path $targetRoot 'scripts/verify.mjs')
+          if ($LASTEXITCODE -ne 0) { throw 'Restored package failed verification' }

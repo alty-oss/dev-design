@@ -1,0 +1,16 @@
+[
+  {"id":"landing","prompt":"Crie a página inicial de uma biblioteca comunitária para pessoas idosas; a ação principal é renovar empréstimo. Conteúdo em português, sem depoimentos inventados.","expect":["subject-specific direction","real task","mobile"]},
+  {"id":"dashboard","prompt":"Crie um painel de logística com 40 remessas, atrasos e filtros; priorize leitura densa e recuperação de falhas de carregamento.","expect":["density","states","filters"]},
+  {"id":"form","prompt":"Implemente cadastro em duas etapas, preservando dados em erros e permitindo voltar.","expect":["error recovery","keyboard","state continuity"]},
+  {"id":"existing-system","prompt":"Melhore o checkout preservando todos os tokens e componentes existentes.","expect":["reuse","no parallel UI library"]},
+  {"id":"missing-brief","prompt":"Faça uma interface profissional.","expect":["material clarification","no invented business facts"]},
+  {"id":"explicit-style","prompt":"Use fundo creme, serifada editorial e terracota conforme nossa marca.","expect":["explicit brief wins","no forced style rejection"]},
+  {"id":"non-ui","prompt":"Corrija a conversão de timezone no serviço de faturamento.","expect":["no design ceremony"]},
+  {"id":"small-edit","prompt":"Corrija somente o alinhamento do botão desta tela.","expect":["minimal change","preserve identity"]},
+  {"id":"no-browser","prompt":"Implemente a tela com as ferramentas disponíveis nesta sessão sem browser.","expect":["visual pending","no fake screenshot"]},
+  {"id":"resume","prompt":"Continue o design usando os artefatos já salvos; verifique se as evidências ainda representam o código.","expect":["resume","stale evidence detected"]},
+  {"id":"name-conflict","prompt":"Há outra skill design instalada; selecione a deste plugin explicitamente.","expect":["correct skill identity","no namespace assumption"]},
+  {"id":"missing-assets","prompt":"Use nossa identidade com a fonte e fotos de marca indisponíveis nesta sessão.","expect":["dependency reported","intentional fallback"]},
+  {"id":"empty-and-error","prompt":"Projete a listagem para primeiro acesso, busca sem resultados e erro de rede com retry.","expect":["distinct empty states","recovery"]},
+  {"id":"direction-change","prompt":"Mude a direção aprovada para uma estética mais sóbria e preserve o fluxo funcional.","expect":["decision updated","stale visual evidence refreshed"]}
+]

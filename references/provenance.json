@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "source": "Claude.dmg supplied by user",
+  "application": "Claude Desktop",
+  "applicationVersion": "2.42304.0",
+  "dmgSha256": "e63238e24375a00c086a2d0c340b78a914467d6dbd0fd6832907723313f2574e",
+  "asarSha256": "e952a1c0f603e6c2f54f2fc9551843f6d7ccf9c73071a814e5ce4a49ee4c2f4d",
+  "skillArchiveSha256": "2481a11cb536a57bf5154a205e0ff6f96322822c0f3d0e272f4afbb92c9f735e",
+  "evidenceId": "ev_3dc9cc432508d4c6b9e12db066a1145703d47ad2d82fe9ff37273a5da1b88cff",
+  "files": {
+    "vendor/frontend-design/SKILL.md": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+    "vendor/frontend-design/LICENSE.txt": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+  },
+  "scope": "Portable frontend-design skill included as third-party visual guidance"
+}

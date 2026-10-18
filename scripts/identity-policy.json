@@ -1,0 +1,21 @@
+{
+  "bannedPatterns": [
+    "claude",
+    "anthropic",
+    "superpowers",
+    "reverse[\\s_-]*engineer(?:ing)?",
+    "eng(?:enharia)?[\\s_-]*reversa"
+  ],
+  "hostPathPatterns": [
+    "/(?:Users|home)/[A-Za-z0-9._-]+(?:/|\\b)",
+    "[A-Za-z]:\\\\Users\\\\[A-Za-z0-9._-]+"
+  ],
+  "ignoredDirectories": [".git", "node_modules", "coverage", "artifacts", "dist"],
+  "attributionExceptions": [
+    "vendor/frontend-design/SKILL.md",
+    "vendor/frontend-design/LICENSE.txt",
+    "THIRD_PARTY_NOTICES.md",
+    "references/provenance.json",
+    "scripts/identity-policy.json"
+  ]
+}

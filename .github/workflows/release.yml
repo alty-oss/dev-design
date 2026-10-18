@@ -1,0 +1,46 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm test
+      - run: npm run verify
+      - name: Validate tag and build verified ZIP
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/package.mjs --output "$RUNNER_TEMP/design-release" --tag "$RELEASE_TAG"
+      - name: Publish npm package with trusted publishing
+        env:
+          PACKAGE_VERSION: ${{ github.ref_name }}
+        run: |
+          version="${PACKAGE_VERSION#v}"
+          if npm view "dev-design@$version" version >/dev/null 2>&1; then
+            echo "dev-design@$version is already published; retaining its immutable registry bytes."
+          else
+            npm publish --access public
+          fi
+      - name: Publish release and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          release_label="$RELEASE_TAG"
+          if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.0$ ]]; then
+            release_label="${RELEASE_TAG%.0}"
+          fi
+          gh release create "$RELEASE_TAG" "$RUNNER_TEMP/design-release/"*.zip "$RUNNER_TEMP/design-release/"*.sha256 --verify-tag --title "Dev Design $release_label" --notes-file .github/release-notes.md
